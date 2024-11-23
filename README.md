@@ -4,7 +4,7 @@ A project focused on enabling users to interact with AI-based characters and fac
 ## Table of Contents
 - [Class Diagram](#class-diagram)
 - [Use Case Diagram](#use-case-diagram)
-- [Activity Diagram](#use-case-diagram)
+- [Activity Diagram](#activity-diagram)
 - [Installation](#installation)
 ---
 
