@@ -4,6 +4,7 @@ A project focused on enabling users to interact with AI-based characters and fac
 ## Table of Contents
 - [Class Diagram](#class-diagram)
 - [Use Case Diagram](#use-case-diagram)
+- [Activity Diagram](#use-case-diagram)
 - [Installation](#installation)
 ---
 
@@ -15,9 +16,16 @@ Here’s an overview of the structure and relationships between classes in this 
 ---
 
 ## Use Case Diagram
-The following use case diagram illustrates the primary actions a user can perform in the system:
+The following use case diagram illustrates the primary actions a visitor and a user can perform in the system:
 
 ![Use Case Diagram](Schema/usecase_diagram.jpg)
+
+---
+
+## Use Activity Diagram
+The following activity diagram depicts the workflow of user interactions within the system:
+
+![Activity Diagram](Schema/activity_diagram.jpg)
 
 ---
 
