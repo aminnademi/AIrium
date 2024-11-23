@@ -22,7 +22,7 @@ The following use case diagram illustrates the primary actions a visitor and a u
 
 ---
 
-## Use Activity Diagram
+## Activity Diagram
 The following activity diagram depicts the workflow of user interactions within the system:
 
 ![Activity Diagram](Schema/activity_diagram.jpg)
