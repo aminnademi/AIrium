@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from .models import PERSONALITIES
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import PERSONALITIES
 from groq import Groq
 import os
 from dotenv import load_dotenv

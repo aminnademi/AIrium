@@ -9,5 +9,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', profile, name='profile'),
     path('main/', main, name='main'),
-    path('chatbot/', chatbot, name='chatbot') 
+    path('chatbot/', chatbot, name='chatbot')
 ]
