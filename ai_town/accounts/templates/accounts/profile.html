@@ -1,4 +1,15 @@
-<h2>Welcome, {{ user.username }}!</h2>
-<p>Your default personality: {{ user.default_personality }}</p>
-<a href="{% url 'logout' %}">Logout</a>
-<p><a href="{% url 'register' %}">Register</a> | <a href="{% url 'login' %}">Login</a></p>
+{% extends 'base.html' %}
+{% block title %}Profile - AI Town{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Welcome, {{ user.username }}!</h2>
+            <p class="text-center">Your default personality: <strong>{{ user.default_personality }}</strong></p>
+            <div class="text-center">
+                <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
