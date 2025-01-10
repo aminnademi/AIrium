@@ -9,7 +9,16 @@ class RegistrationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+from django import forms
+from .models import User, PERSONALITIES
+
 class ProfileForm(forms.ModelForm):
+    default_personality = forms.ChoiceField(
+        choices=[(key, key.capitalize()) for key in PERSONALITIES.keys()],
+        required=False,
+        label="Default Personality"
+    )
+
     class Meta:
         model = User
         fields = ['default_personality']
