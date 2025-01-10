@@ -2,23 +2,14 @@ import os
 import re
 from dotenv import load_dotenv
 from datetime import datetime
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage
+from groq import Groq
 
-# Load environment variables from .env file
 load_dotenv()
 api_key = os.getenv("API_KEY")
 
-# Initialize the ChatOpenAI instance
-llm = ChatOpenAI(
-    model="gpt-3.5-turbo",
-    base_url="https://api.avalai.ir/v1",
-    api_key=api_key,
-    max_tokens=1000,
-    n=1,
-    stop=None,
-    temperature=0.7
-)
+# Initialize the Groq client
+client = Groq(
+    api_key=api_key)
 
 # Represents a character in the chatbot with specific traits and communication styles.
 class Character:
@@ -52,13 +43,19 @@ def sanitize(user_input):
 def get_response(character, input):
     clean = sanitize(input)
     prompt = character.get_prompt() + clean
-    
-    try:
-        messages = [HumanMessage(content=prompt)]
-        response = llm(messages)
 
-        return response.content
-    
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+        )
+        return chat_completion.choices[0].message.content
+
     except Exception as e:
         return f"An error occurred while processing the response: {e}"
 
@@ -66,11 +63,11 @@ def get_response(character, input):
 def choose_character():
     print("Available personalities: mayor, farmer, economic_specialist, environmental_activist")
     choice = input("Choose a personality: ").strip().lower()
-    
+
     if choice not in personalities:
         print("Invalid personality choice.")
         return None
-    
+
     personality_data = personalities[choice]
     return Character(
         id=1,
@@ -131,13 +128,12 @@ personalities = {
     }
 }
 
-
 print("Welcome to the AI Town Chatbot!")
 
 # Initial character selection
 character = choose_character()
 if character is None:
-    exit()  
+    exit()
 
 chat_history = ChatHistory()
 print(f"You are now chatting with the {character.name}.")
@@ -154,10 +150,10 @@ while True:
         continue
 
     response = get_response(character, user_input)
-    
+
     chat_history.add_message(character.name, response)
     chat_history.add_message("You", user_input)
-    
+
     print(f"{character.name}: {response}")
 
 print("\nChat History:")

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}AI Town - Main{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Map/Environment Section -->
+        <div class="col-md-8">
+            <div class="map-container">
+                <h2 class="text-center mb-4">AI Town Map</h2>
+                <div class="characters">
+                    <div class="character mayor" data-personality="mayor">
+                        <div class="character-emoji">👨‍💼</div>
+                        <p class="character-name">Mayor</p>
+                    </div>
+                    <div class="character farmer" data-personality="farmer">
+                        <div class="character-emoji">👨‍🌾</div>
+                        <p class="character-name">Farmer</p>
+                    </div>
+                    <div class="character economic_specialist" data-personality="economic_specialist">
+                        <div class="character-emoji">👩‍💼</div>
+                        <p class="character-name">Economic Specialist</p>
+                    </div>
+                    <div class="character environmental_activist" data-personality="environmental_activist">
+                        <div class="character-emoji">🌱</div>
+                        <p class="character-name">Environmental Activist</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="col-md-4">
+            <div class="chat-container">
+                <h2 class="text-center mb-4">Chat</h2>
+                <div class="chat-window" id="chat-window">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" placeholder="Type your message...">
+                    <button id="send-button" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
