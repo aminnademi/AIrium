@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Start the dual chat
         try {
-            const response = await fetch('/accounts/chatbot_together/', {
+            const response = await fetch('/accounts/chatbot-together/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
