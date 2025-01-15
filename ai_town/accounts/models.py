@@ -60,3 +60,21 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+
+
+class Person(models.Model):
+    username = models.CharField(max_length=64)
+    password = models.CharField(max_length=64)
+
+
+class Message(models.Model):
+    username1 = models.CharField(max_length=64)
+    username2 = models.CharField(max_length=64)
+    onesay = models.BooleanField()
+    message = models.TextField()
+    
+    date = models.DateTimeField(auto_created=True)
+
+
+

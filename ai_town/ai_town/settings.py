@@ -78,12 +78,8 @@ WSGI_APPLICATION = 'ai_town.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'ai_town_db',
-        'CLIENT': {
-            'host': 'localhost',
-            'port': 27017,
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # SQLite database file
     }
 }
 
@@ -135,6 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+LOGIN_REDIRECT_URL = 'main'  # Redirect to the main page after login
 
 load_dotenv()
 
