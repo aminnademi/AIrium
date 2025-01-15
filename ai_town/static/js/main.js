@@ -3,10 +3,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatWindow = document.getElementById('chat-window');
     const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-button');
+    const startDualChatButton = document.getElementById('start-dual-chat');
+    const dualChatWindow = document.getElementById('dual-chat-window');
 
     let selectedPersonality = null;
 
-    // Handle character selection
+    // Handle character selection for single chat
     characters.forEach(character => {
         character.addEventListener('click', function () {
             selectedPersonality = this.getAttribute('data-personality');
@@ -14,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Handle sending messages
+    // Handle sending messages in single chat
     sendButton.addEventListener('click', async function () {
         const message = chatInput.value.trim();
         if (message && selectedPersonality) {
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+                        'X-CSRFToken': getCookie('csrftoken'),
                     },
                     body: new URLSearchParams({
                         'input': message,
@@ -55,6 +57,68 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Scroll to bottom of chat window
             chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    });
+
+    // Handle starting dual chat
+    startDualChatButton.addEventListener('click', async function () {
+        const personality1 = document.getElementById('personality1').value;
+        const personality2 = document.getElementById('personality2').value;
+
+        if (personality1 === personality2) {
+            alert('Please select two different personalities.');
+            return;
+        }
+
+        // Clear the dual chat window
+        dualChatWindow.innerHTML = '';
+
+        // Start the dual chat
+        try {
+            const response = await fetch('/accounts/chatbot_together/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: new URLSearchParams({
+                    'personality1': personality1,
+                    'personality2': personality2,
+                    'n': 5,  // Number of exchanges
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            if (data.response === 'Conversation saved successfully') {
+                // Fetch and display the dual chat history
+                const historyResponse = await fetch('/accounts/getHistory/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: new URLSearchParams({
+                        'username1': personality1,
+                        'username2': personality2,
+                    }),
+                });
+
+                if (!historyResponse.ok) {
+                    throw new Error('Failed to fetch chat history');
+                }
+
+                const historyData = await historyResponse.json();
+                historyData.response.forEach(message => {
+                    const sender = message.onesay ? personality1 : personality2;
+                    dualChatWindow.innerHTML += `<div class="dual-message">${sender}: ${message.message}</div>`;
+                });
+            }
+        } catch (error) {
+            dualChatWindow.innerHTML += `<div class="error-message">Error: ${error.message}</div>`;
         }
     });
 

@@ -15,6 +15,11 @@ api_key = os.getenv("API_KEY")
 # Initialize the Groq client
 client = Groq(api_key=api_key)
 
+def sort_users(u1, u2):
+    if u2 < u1:
+        u1, u2 = u2, u1
+
+    return u1, u2
 
 def register(request):
     if request.method == 'POST':
@@ -26,10 +31,34 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
+def save_message(u1, u2, onsay, message):
+    message = Message.objects.create(
+        username1=u1,
+        username2=u2,
+        onesay=onsay,
+        message=message
+    )
+    message.save()
+
+def chatgpt(personality, user_input):
+    # Get the personality's nuances
+    nuances = PERSONALITIES[personality]['nuances']
+
+    # Prepare the prompt
+    prompt = f"{nuances} Respond to the following input: {user_input}"
+        
+    chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                model="llama3-70b-8192",  # Use the appropriate Groq model
+            )
+    return chat_completion.choices[0].message.content
 
 @login_required
-
-
 def main(request):
     return render(request, 'main.html')
 
@@ -42,40 +71,24 @@ def chatbot(request):
         if personality not in PERSONALITIES:
             return JsonResponse({'error': 'Invalid personality'}, status=400)
 
-        # Get the personality's nuances
-        nuances = PERSONALITIES[personality]['nuances']
-
-        # Prepare the prompt
-        prompt = f"{nuances} Respond to the following input: {user_input}"
-
         try:
             # Generate the chatbot's response using Groq
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-                model="llama3-70b-8192",  # Use the appropriate Groq model
-            )
-            response = chat_completion.choices[0].message.content
+            response = chatgpt(personality, user_input)
+
+            # Save user message and chatbot response in the database
+            u1 = 'username1'  # Replace with the logged-in user's username
+            u2 = personality
+            username1, username2 = sort_users(u1, u2)
+            save_message(username1, username2, True, user_input)
+            save_message(username1, username2, False, response)
+
             return JsonResponse({'response': response})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-        
-    # add message in data base
-    message = Message(
-    username1=request.POST.get('username1'),  # Assuming the user is logged in
-    username2="chatbot",  # Assuming the chatbot is the other party
-    message=f"User: {user_input}\nChatbot: {response}"
-)
-    message.save()
-
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
+@csrf_exempt
 def getHistory(request):
     if request.method == 'POST':
         u1 = request.POST.get('username1')
@@ -85,12 +98,43 @@ def getHistory(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 def getMessage(u1, u2):
-    if u2 < u1:
-        u1, u2 = u2, u1
+    u1, u2 = sort_users(u1, u2)
 
     chat_history = Message.objects.filter(username1=u1, username2=u2)
+    ans = []
+    for message in chat_history:
+        ans.append({
+            "message": message.message,
+            "onesay": message.onesay,
+            "date": message.date
+        })
 
-    return list(map(lambda i : i.message, chat_history))
+    return ans
 
+@csrf_exempt
+def chatbot_together(request):
+    if request.method == 'POST':
+        personality1 = request.POST.get('personality1')
+        personality2 = request.POST.get('personality2')
+        n = int(request.POST.get('n'))
+
+        if personality1 not in PERSONALITIES or personality2 not in PERSONALITIES:
+            return JsonResponse({'error': 'Invalid personality'}, status=400)
+
+        u1, u2 = sort_users(personality1, personality2)
+        message = 'Hi'
+        for i in range(n):
+            # Personality 1 responds
+            response1 = chatgpt(personality1, message)
+            save_message(u1, u2, True, response1)
+            message = response1
+
+            # Personality 2 responds
+            response2 = chatgpt(personality2, message)
+            save_message(u1, u2, False, response2)
+            message = response2
+
+        return JsonResponse({'response': 'Conversation saved successfully'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

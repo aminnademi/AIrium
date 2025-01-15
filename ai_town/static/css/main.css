@@ -55,6 +55,7 @@ body {
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+    height: 300px; /* Added fixed height */
 }
 
 .chat-input {
@@ -101,4 +102,58 @@ body {
     margin-bottom: 10px;
     max-width: 70%;
     align-self: flex-start;
+}
+
+/* Dual Chat Container */
+.dual-chat-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Dual Chat Window */
+.dual-chat-window {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    height: 300px; /* Added fixed height */
+}
+
+/* Dual Chat Message Styles */
+.dual-message {
+    background-color: #f1c40f; /* Yellow color for dual chat messages */
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    align-self: flex-start;
+}
+
+/* Form Select Styles */
+.form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Button Styles for Dual Chat */
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-success:hover {
+    background-color: #218838;
 }

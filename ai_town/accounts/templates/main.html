@@ -42,5 +42,38 @@
             </div>
         </div>
     </div>
+
+    <!-- Dual Personality Interaction Section -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="dual-chat-container">
+                <h2 class="text-center mb-4">Dual Personality Interaction</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <select id="personality1" class="form-select mb-3">
+                            <option value="mayor">Mayor</option>
+                            <option value="farmer">Farmer</option>
+                            <option value="economic_specialist">Economic Specialist</option>
+                            <option value="environmental_activist">Environmental Activist</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="personality2" class="form-select mb-3">
+                            <option value="mayor">Mayor</option>
+                            <option value="farmer">Farmer</option>
+                            <option value="economic_specialist">Economic Specialist</option>
+                            <option value="environmental_activist">Environmental Activist</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button id="start-dual-chat" class="btn btn-success">Start Dual Chat</button>
+                </div>
+                <div class="dual-chat-window mt-4" id="dual-chat-window">
+                    <!-- Dual chat messages will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
