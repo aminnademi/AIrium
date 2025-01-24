@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from groq import Groq
 import os
 from dotenv import load_dotenv
+from accounts.models import User
 
 # Load environment variables
 load_dotenv()
@@ -24,9 +25,17 @@ def sort_users(u1, u2):
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('main')  # Redirect to the main page after registration
+        if form.data.get('username'):
+            user = User.objects.create_user(
+                username=form.data.get('username'),
+                email=form.data.get('email'),
+                password=form.data.get('password1')
+            )
+            user.save()
+            return redirect('login')
+        # if form.is_valid():
+        #     form.save()
+        #     return redirect('main')  # Redirect to the main page after registration
     else:
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -72,7 +81,9 @@ def chatgpt(personality, user_input):
 def main(request):
     return render(request, 'main.html')
 
+
 @csrf_exempt
+@login_required
 def chatbot(request):
     if request.method == 'POST':
         user_input = request.POST.get('input')
@@ -84,9 +95,8 @@ def chatbot(request):
         try:
             # Generate the chatbot's response using Groq
             response = chatgpt(personality, user_input)
-
             # Save user message and chatbot response in the database
-            u1 = 'username1'  # Replace with the logged-in user's username
+            u1 = request.user.username  # Replace with the logged-in user's username
             u2 = personality
             username1, username2 = sort_users(u1, u2)
             save_message(username1, username2, True, user_input)

@@ -55,7 +55,11 @@
                     {% if user.is_authenticated %}
                         <!-- Removed Profile Link -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            <form class="nav-link" action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit">Logout</button>
+                            </form>
+                            <!-- <a class="nav-link" href="{% url 'logout' %}">Logout</a> -->
                         </li>
                     {% else %}
                         <li class="nav-item">
