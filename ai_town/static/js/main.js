@@ -1,7 +1,69 @@
 function as_Guest(){
 
 }
+document.addEventListener('DOMContentLoaded', function () {
+    const characters = document.querySelectorAll('.character');
+    const chatWindow = document.getElementById('chat-window');
 
+    // Handle character selection
+    characters.forEach(character => {
+        character.addEventListener('click', async function () {
+            const selectedPersonality = this.getAttribute('data-personality');
+
+            // Clear the chat window
+            chatWindow.innerHTML = '';
+
+            // Fetch chat history for the selected character
+            try {
+                const response = await fetch('/accounts/get-chat-history/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: new URLSearchParams({
+                        'character': selectedPersonality,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch chat history');
+                }
+
+                const data = await response.json();
+
+                // Display chat history in the chat window
+                data.chat_history.forEach(message => {
+                    const messageClass = message.sender === 'You' ? 'user-message' : 'bot-message';
+                    chatWindow.innerHTML += `<div class="${messageClass}">${message.sender}: ${message.message}</div>`;
+                });
+
+                // Scroll to the bottom of the chat window
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+                chatWindow.innerHTML += `<div class="error-message">Error: ${error.message}</div>`;
+            }
+        });
+    });
+
+    // Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
 document.addEventListener('DOMContentLoaded', function () {
     const characters = document.querySelectorAll('.character');
     const chatWindow = document.getElementById('chat-window');

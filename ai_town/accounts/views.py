@@ -19,8 +19,33 @@ client = Groq(api_key=api_key)
 def sort_users(u1, u2):
     if u2 < u1:
         u1, u2 = u2, u1
-
     return u1, u2
+
+@csrf_exempt
+def get_chat_history(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+
+    if request.method == 'POST':
+        username1 = request.user.username
+        username2 = request.POST.get('character')
+
+        if username2 < username1:
+            username1, username2 = username2, username1
+
+        chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
+
+        history_data = []
+        for message in chat_history:
+            history_data.append({
+                'message': message.message,
+                'sender': 'You' if message.onesay else username2,
+                'date': message.date.strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        return JsonResponse({'chat_history': history_data})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def register(request):
     if request.method == 'POST':
@@ -33,9 +58,6 @@ def register(request):
             )
             user.save()
             return redirect('login')
-        # if form.is_valid():
-        #     form.save()
-        #     return redirect('main')  # Redirect to the main page after registration
     else:
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -57,16 +79,15 @@ def chatgpt2(personality, user_input):
     prompt = f"{nuances} Respond to the following input: {user_input}"
         
     chat_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-                model="llama3-70b-8192",  # Use the appropriate Groq model
-            )
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="llama3-70b-8192",  # Use the appropriate Groq model
+    )
     return chat_completion.choices[0].message.content
-
 
 def chatgpt(personality, user_input):
     # Get the personality's nuances
@@ -74,13 +95,11 @@ def chatgpt(personality, user_input):
 
     # Prepare the prompt
     prompt = f"{nuances} Respond to the following input: {user_input}"
-    return "chat gpt say cose Nanat: " + prompt
-
+    return personality + prompt
 
 @login_required
 def main(request):
     return render(request, 'main.html')
-
 
 @csrf_exempt
 @login_required
@@ -129,7 +148,6 @@ def getMessage(u1, u2):
             "onesay": message.onesay,
             "date": message.date
         })
-    # print(ans)
     return ans
 
 @csrf_exempt
