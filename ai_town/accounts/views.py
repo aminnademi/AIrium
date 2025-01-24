@@ -40,7 +40,7 @@ def save_message(u1, u2, onsay, message):
     )
     message.save()
 
-def chatgpt(personality, user_input):
+def chatgpt2(personality, user_input):
     # Get the personality's nuances
     nuances = PERSONALITIES[personality]['nuances']
 
@@ -57,6 +57,16 @@ def chatgpt(personality, user_input):
                 model="llama3-70b-8192",  # Use the appropriate Groq model
             )
     return chat_completion.choices[0].message.content
+
+
+def chatgpt(personality, user_input):
+    # Get the personality's nuances
+    nuances = PERSONALITIES[personality]['nuances']
+
+    # Prepare the prompt
+    prompt = f"{nuances} Respond to the following input: {user_input}"
+    return "chat gpt say cose Nanat: " + prompt
+
 
 @login_required
 def main(request):
@@ -109,7 +119,7 @@ def getMessage(u1, u2):
             "onesay": message.onesay,
             "date": message.date
         })
-
+    # print(ans)
     return ans
 
 @csrf_exempt

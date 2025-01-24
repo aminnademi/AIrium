@@ -9,6 +9,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('main/', main, name='main'),
     path('chatbot/', chatbot, name='chatbot'),
-    path('get-history/', getHistory, name='get-history'),
+    path('getHistory/', getHistory, name='get-history'),
     path('chatbot-together/', chatbot_together, name='chatbot-together'),
 ]

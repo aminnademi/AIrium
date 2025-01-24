@@ -114,7 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const historyData = await historyResponse.json();
                 historyData.response.forEach(message => {
                     const sender = message.onesay ? personality1 : personality2;
-                    dualChatWindow.innerHTML += `<div class="dual-message">${sender}: ${message.message}</div>`;
+                    dualChatWindow.innerHTML += `<div style="display: flex; justify-content: ${message.onesay ? "end" : "start"}">
+                        <div class="dual-message" style="background-color: ${message.onesay ? "#3498db" : "#2ecc71"};">${sender}: ${message.message}</div></div>`;
                 });
             }
         } catch (error) {
