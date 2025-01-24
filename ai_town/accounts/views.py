@@ -41,7 +41,7 @@ def register(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 def save_message(u1, u2, onsay, message):
-    message = Message.objects.create(
+    message = Message(
         username1=u1,
         username2=u2,
         onesay=onsay,

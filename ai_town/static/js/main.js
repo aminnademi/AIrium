@@ -1,3 +1,7 @@
+function as_Guest(){
+
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const characters = document.querySelectorAll('.character');
     const chatWindow = document.getElementById('chat-window');
@@ -12,10 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
     characters.forEach(character => {
         character.addEventListener('click', function () {
             selectedPersonality = this.getAttribute('data-personality');
-            alert(`You selected the ${selectedPersonality}. Start chatting!`);
+            
+            // alert(`You selected the ${selectedPersonality}. Start chatting!`);
         });
     });
-
     // Handle sending messages in single chat
     sendButton.addEventListener('click', async function () {
         const message = chatInput.value.trim();
@@ -138,4 +142,5 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return cookieValue;
     }
+
 });
