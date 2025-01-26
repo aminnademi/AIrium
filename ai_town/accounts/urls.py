@@ -11,5 +11,5 @@ urlpatterns = [
     path('getHistory/', getHistory, name='get-history'),
     path('chatbot-together/', chatbot_together, name='chatbot-together'),
     path('get-chat-history/', get_chat_history, name='get-chat-history'),
-    path('guest-mode/', guest_mode, name='guest-mode'),  # Add this line
+    path('guest-mode/', guest_mode, name='guest-mode'),
 ]

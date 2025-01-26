@@ -25,23 +25,19 @@ def sort_users(u1, u2):
 def get_chat_history(request):
     """
     Fetch chat history for a specific user and character.
-    Skip database operations if in guest mode.
     """
     if not request.user.is_authenticated and not request.session.get('is_guest', False):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
 
     if request.method == 'POST':
-        username1 = request.user.username if request.user.is_authenticated else 'Guest_User'
+        username1 = request.user.username if request.user.is_authenticated else 'guest'
         username2 = request.POST.get('character')
 
         if username2 < username1:
             username1, username2 = username2, username1
 
-        # Fetch chat history from the database only if not in guest mode
-        if not request.session.get('is_guest', False):
-            chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
-        else:
-            chat_history = []  # Return empty history for guest mode
+        # Fetch chat history from the database
+        chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
 
         # Prepare the response data
         history_data = []
@@ -71,29 +67,35 @@ def guest_mode(request):
     request.session['username'] = 'Guest_User'  # Set a placeholder username for guest mode
     return redirect('main')  # Redirect to the main page
 
-@csrf_exempt
-def chatbot(request):
+def chatgpt(personality, user_input, username, is_guest=False):
     """
-    Handle chatbot interactions.
-    Skip saving to the database if in guest mode.
+    Generate a response using Groq API.
+    If is_guest is True, skip saving to the database.
     """
-    if request.method == 'POST':
-        user_input = request.POST.get('input')
-        personality = request.POST.get('personality')
-        is_guest = request.session.get('is_guest', False)
-        username = request.session.get('username', 'Guest_User')  # Use 'Guest_User' for guest mode
+    # Get the personality's nuances
+    nuances = PERSONALITIES[personality]['nuances']
 
-        if personality not in PERSONALITIES:
-            return JsonResponse({'error': 'Invalid personality'}, status=400)
+    # Prepare the prompt
+    prompt = f"{nuances} Respond to the following input: {user_input}"
 
-        try:
-            # Generate the chatbot's response
-            response = chatgpt(personality, user_input, username, is_guest)
-            return JsonResponse({'response': response})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+    # Generate the chatbot's response using Groq
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="llama3-70b-8192",  # Use the appropriate Groq model
+    )
+    response = chat_completion.choices[0].message.content
 
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+    # Save the message to the database only if not in guest mode
+    if not is_guest:
+        save_message(username, personality, True, user_input)
+        save_message(username, personality, False, response)
+
+    return response
 
 @csrf_exempt
 def chatbot(request):
@@ -159,16 +161,27 @@ def chatgpt2(personality, user_input):
     )
     return chat_completion.choices[0].message.content
 
-def chatgpt(personality, user_input, username, is_guest=False):
-    """
-    Generate a response using Groq API.
-    If is_guest is True, skip saving to the database.
-    """
+def chatgpt(personality, user_input, username):
+    # Fetch the last 10 messages from the database
+    u1, u2 = sort_users(username, personality)
+    chat_history = getMessage(u1, u2)[-10:]  # Get the last 10 messages
+
+    # Prepare the conversation history for the prompt
+    conversation_history = ""
+    for message in chat_history:
+        sender = "You" if message['onesay'] else personality
+        conversation_history += f"{sender}: {message['message']}\n"
+
     # Get the personality's nuances
     nuances = PERSONALITIES[personality]['nuances']
 
-    # Prepare the prompt
-    prompt = f"{nuances} Respond to the following input: {user_input}"
+    # Prepare the prompt with conversation history
+    prompt = (
+    f"{nuances}\n\n"
+    f"Previous Conversation:\n{conversation_history}\n"
+    f"Respond to the following input in 1-2 short sentences:\n{user_input}\n"
+    f"Be concise and avoid unnecessary details."
+)
 
     # Generate the chatbot's response using Groq
     chat_completion = client.chat.completions.create(
@@ -180,14 +193,7 @@ def chatgpt(personality, user_input, username, is_guest=False):
         ],
         model="llama3-70b-8192",  # Use the appropriate Groq model
     )
-    response = chat_completion.choices[0].message.content
-
-    # Save the message to the database only if not in guest mode
-    if not is_guest:
-        save_message(username, personality, True, user_input)
-        save_message(username, personality, False, response)
-
-    return response
+    return chat_completion.choices[0].message.content
 
 @login_required
 def main(request):
