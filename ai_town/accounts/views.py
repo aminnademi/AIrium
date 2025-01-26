@@ -195,13 +195,11 @@ def chatgpt(personality, user_input, username):
     )
     return chat_completion.choices[0].message.content
 
-@login_required
 def main(request):
     return render(request, 'main.html')
 
 
 @csrf_exempt
-@login_required
 def chatbot(request):
     if request.method == 'POST':
         user_input = request.POST.get('input')
