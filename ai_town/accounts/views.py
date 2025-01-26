@@ -23,9 +23,7 @@ def sort_users(u1, u2):
 
 @csrf_exempt
 def get_chat_history(request):
-    """
-    Fetch chat history for a specific user and character.
-    """
+    # Fetch chat history for a specific user and character.
     if not request.user.is_authenticated and not request.session.get('is_guest', False):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
 
@@ -51,30 +49,20 @@ def get_chat_history(request):
         return JsonResponse({'chat_history': history_data})
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
-# Load environment variables
-load_dotenv()
-api_key = os.getenv("API_KEY")
-
-# Initialize the Groq client
-client = Groq(api_key=api_key)
 
 @csrf_exempt
 def guest_mode(request):
-    """
-    Enable guest mode by setting a session variable.
-    """
+    # Enable guest mode by setting a session variable.
     request.session['is_guest'] = True
     request.session['username'] = 'Guest_User'  # Set a placeholder username for guest mode
     return redirect('main')  # Redirect to the main page
 
 def chatgpt(personality, user_input, username, is_guest=False):
-    """
-    Generate a response using Groq API.
-    If is_guest is True, skip saving to the database.
-    """
-    # Get the personality's nuances
-    nuances = PERSONALITIES[personality]['nuances']
 
+    # Generate a response using Groq API.
+    # If is_guest is True, skip saving to the database.
+
+    nuances = PERSONALITIES[personality]['nuances']
     # Prepare the prompt
     prompt = f"{nuances} Respond to the following input: {user_input}"
 
@@ -143,28 +131,10 @@ def save_message(u1, u2, onsay, message):
     )
     message.save()
 
-def chatgpt2(personality, user_input):
-    # Get the personality's nuances
-    nuances = PERSONALITIES[personality]['nuances']
-
-    # Prepare the prompt
-    prompt = f"{nuances} Respond to the following input: {user_input}"
-        
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama3-70b-8192",  # Use the appropriate Groq model
-    )
-    return chat_completion.choices[0].message.content
-
 def chatgpt(personality, user_input, username):
     # Fetch the last 10 messages from the database
     u1, u2 = sort_users(username, personality)
-    chat_history = getMessage(u1, u2)[-10:]  # Get the last 10 messages
+    chat_history = get_message(u1, u2)[-10:]  # Get the last 10 messages
 
     # Prepare the conversation history for the prompt
     conversation_history = ""
@@ -226,16 +196,16 @@ def chatbot(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
-def getHistory(request):
+def get_history(request):
     if request.method == 'POST':
         u1 = request.POST.get('username1')
         u2 = request.POST.get('username2')
 
-        return JsonResponse({'response': getMessage(u1, u2)})
+        return JsonResponse({'response': get_message(u1, u2)})
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def getMessage(u1, u2):
+def get_message(u1, u2):
     u1, u2 = sort_users(u1, u2)
     chat_history = Message.objects.filter(username1=u1, username2=u2).order_by('date')
     ans = []
