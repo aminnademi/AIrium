@@ -58,13 +58,26 @@ def guest_mode(request):
     return redirect('main')  # Redirect to the main page
 
 def chatgpt(personality, user_input, username, is_guest=False):
+    # Fetch the last 10 messages from the database
+    u1, u2 = sort_users(username, personality)
+    chat_history = get_message(u1, u2)[-10:]  # Get the last 10 messages
 
-    # Generate a response using Groq API.
-    # If is_guest is True, skip saving to the database.
+    # Prepare the conversation history for the prompt
+    conversation_history = ""
+    for message in chat_history:
+        sender = "You" if message['onesay'] else personality
+        conversation_history += f"{sender}: {message['message']}\n"
 
+    # Get the personality's nuances
     nuances = PERSONALITIES[personality]['nuances']
-    # Prepare the prompt
-    prompt = f"{nuances} Respond to the following input: {user_input}"
+
+    # Prepare the prompt with conversation history
+    prompt = (
+    f"{nuances}\n\n"
+    f"Previous Conversation:\n{conversation_history}\n"
+    f"Respond to the following input in 1-2 short sentences:\n{user_input}\n"
+    f"Be concise and avoid unnecessary details."
+    )
 
     # Generate the chatbot's response using Groq
     chat_completion = client.chat.completions.create(
@@ -78,12 +91,42 @@ def chatgpt(personality, user_input, username, is_guest=False):
     )
     response = chat_completion.choices[0].message.content
 
-    # Save the message to the database only if not in guest mode
+        # Save the message to the database only if not in guest mode
     if not is_guest:
         save_message(username, personality, True, user_input)
         save_message(username, personality, False, response)
-
+    
     return response
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.data.get('username'):
+            user = User.objects.create_user(
+                username=form.data.get('username'),
+                email=form.data.get('email'),
+                password=form.data.get('password1')
+            )
+            user.save()
+            return redirect('login')
+    else:
+        form = RegistrationForm()
+    return render(request, 'accounts/register.html', {'form': form})
+
+
+def save_message(u1, u2, onsay, message):
+    message = Message(
+        username1=u1,
+        username2=u2,
+        onesay=onsay,
+        message=message
+    )
+    message.save()
+
+def main(request):
+    return render(request, 'main.html')
+
 
 @csrf_exempt
 def chatbot(request):
@@ -107,93 +150,7 @@ def chatbot(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
-def register(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.data.get('username'):
-            user = User.objects.create_user(
-                username=form.data.get('username'),
-                email=form.data.get('email'),
-                password=form.data.get('password1')
-            )
-            user.save()
-            return redirect('login')
-    else:
-        form = RegistrationForm()
-    return render(request, 'accounts/register.html', {'form': form})
 
-def save_message(u1, u2, onsay, message):
-    message = Message(
-        username1=u1,
-        username2=u2,
-        onesay=onsay,
-        message=message
-    )
-    message.save()
-
-def chatgpt(personality, user_input, username):
-    # Fetch the last 10 messages from the database
-    u1, u2 = sort_users(username, personality)
-    chat_history = get_message(u1, u2)[-10:]  # Get the last 10 messages
-
-    # Prepare the conversation history for the prompt
-    conversation_history = ""
-    for message in chat_history:
-        sender = "You" if message['onesay'] else personality
-        conversation_history += f"{sender}: {message['message']}\n"
-
-    # Get the personality's nuances
-    nuances = PERSONALITIES[personality]['nuances']
-
-    # Prepare the prompt with conversation history
-    prompt = (
-    f"{nuances}\n\n"
-    f"Previous Conversation:\n{conversation_history}\n"
-    f"Respond to the following input in 1-2 short sentences:\n{user_input}\n"
-    f"Be concise and avoid unnecessary details."
-)
-
-    # Generate the chatbot's response using Groq
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama3-70b-8192",  # Use the appropriate Groq model
-    )
-    return chat_completion.choices[0].message.content
-
-def main(request):
-    return render(request, 'main.html')
-
-
-@csrf_exempt
-def chatbot(request):
-    if request.method == 'POST':
-        user_input = request.POST.get('input')
-        personality = request.POST.get('personality')
-
-        if personality not in PERSONALITIES:
-            return JsonResponse({'error': 'Invalid personality'}, status=400)
-
-        try:
-            # Generate the chatbot's response using Groq
-            response = chatgpt(personality, user_input, request.user.username)
-
-            # Save user message and chatbot response in the database
-            u1 = request.user.username
-            u2 = personality
-            username1, username2 = sort_users(u1, u2)
-            save_message(username1, username2, True, user_input)
-            save_message(username1, username2, False, response)
-
-            return JsonResponse({'response': response})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 def get_history(request):
