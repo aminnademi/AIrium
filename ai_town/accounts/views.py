@@ -1,13 +1,12 @@
-from django.shortcuts import render, redirect
-from .forms import RegistrationForm
-from django.contrib.auth.decorators import login_required
-from .models import PERSONALITIES, Message
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from .models import PERSONALITIES, Message, User
+from .forms import RegistrationForm
 from groq import Groq
 import os
 from dotenv import load_dotenv
-from accounts.models import User
 
 # Load environment variables
 load_dotenv()
@@ -45,7 +44,7 @@ def get_message(u1, u2):
 def chatgpt(personality, user_input, username, is_guest):
     # Fetch the last 10 messages from the database
     u1, u2 = sort_users(username, personality)
-    chat_history = get_message(u1, u2)[-10:]  # Get the last 10 messages
+    chat_history = get_message(u1, u2)[-10:]
 
     # Prepare the conversation history for the prompt
     conversation_history = ""
@@ -72,11 +71,11 @@ def chatgpt(personality, user_input, username, is_guest):
                 "content": prompt,
             }
         ],
-        model="llama3-70b-8192",  # Use the appropriate Groq model
+        model="llama3-70b-8192",  # Use the desired Groq model
     )
     response = chat_completion.choices[0].message.content
 
-        # Save the message to the database only if not in guest mode
+    # Save the message to the database only if not in guest mode
     if not is_guest:
         save_message(username, personality, True, user_input)
         save_message(username, personality, False, response)
@@ -97,18 +96,14 @@ def register(request):
             return redirect('login')
     else:
         form = RegistrationForm()
+
     return render(request, 'accounts/register.html', {'form': form})
 
 def main(request):
     return render(request, 'main.html')
 
-
 @csrf_exempt
-def chatbot(request):
-    """
-    Handle chatbot interactions.
-    Skip saving to the database if in guest mode.
-    """
+def chatbot(request):   # Handle chatbot interactions, Skip saving to the database if in guest mode.
     if request.method == 'POST':
         user_input = request.POST.get('input')
         personality = request.POST.get('personality')
@@ -127,16 +122,14 @@ def chatbot(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
-def guest_mode(request):
-    # Enable guest mode by setting a session variable.
+def guest_mode(request):    # Enable guest mode by setting a session variable.
     request.session['is_guest'] = True
     request.session['username'] = 'Guest_User'  # Set a placeholder username for guest mode
-    return redirect('main')  # Redirect to the main page
+    return redirect('main')
 
 
 @csrf_exempt
-def get_chat_history(request):
-    # Fetch chat history for a specific user and character.
+def get_chat_history(request):      # Fetch chat history for a specific user and character.
     if not request.user.is_authenticated and not request.session.get('is_guest', False):
         return JsonResponse({'error': 'User not authenticated'}, status=401)
 
@@ -144,8 +137,7 @@ def get_chat_history(request):
         username1 = request.user.username if request.user.is_authenticated else 'guest'
         username2 = request.POST.get('character')
 
-        if username2 < username1:
-            username1, username2 = username2, username1
+        sort_users(username1, username2)
 
         # Fetch chat history from the database
         chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
@@ -187,12 +179,12 @@ def chatbot_together(request):
         message = 'Hi'
         for i in range(n):
             # Personality 1 responds
-            response1 = chatgpt(personality1, message, personality1, False)  # Pass personality1 as username
+            response1 = chatgpt(personality1, message, personality1, True)  # Pass personality1 as username
             save_message(u1, u2, True, response1)
             message = response1
 
             # Personality 2 responds
-            response2 = chatgpt(personality2, message, personality2, False)  # Pass personality2 as username
+            response2 = chatgpt(personality2, message, personality2, True)  # Pass personality2 as username
             save_message(u1, u2, False, response2)
             message = response2
 

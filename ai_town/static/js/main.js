@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const guestButton = document.querySelector('button[onclick="as_Guest()"]');
 
-    // Handle "Continue as Guest" button click
     function as_Guest() {
         fetch('/accounts/guest-mode/', {
             method: 'GET',
@@ -10,19 +9,17 @@ document.addEventListener('DOMContentLoaded', function () {
             },
         }).then(response => {
             if (response.ok) {
-                window.location.href = '/accounts/main/';  // Redirect to the main page
+                window.location.href = '/accounts/main/';
             } else {
                 console.error('Failed to enable guest mode');
             }
         });
     }
 
-    // Attach the event handler to the button
     if (guestButton) {
         guestButton.addEventListener('click', as_Guest);
     }
 
-    // Function to get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -112,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
             selectedPersonality = this.getAttribute('data-personality');
         });
     });
+    
     sendButton.addEventListener('click', async function () {
         const message = chatInput.value.trim();
         if (message && selectedPersonality) {
