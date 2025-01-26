@@ -21,43 +21,28 @@ def sort_users(u1, u2):
         u1, u2 = u2, u1
     return u1, u2
 
-@csrf_exempt
-def get_chat_history(request):
-    # Fetch chat history for a specific user and character.
-    if not request.user.is_authenticated and not request.session.get('is_guest', False):
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
+def save_message(u1, u2, onsay, message):
+    message = Message(
+        username1=u1,
+        username2=u2,
+        onesay=onsay,
+        message=message
+    )
+    message.save()
 
-    if request.method == 'POST':
-        username1 = request.user.username if request.user.is_authenticated else 'guest'
-        username2 = request.POST.get('character')
+def get_message(u1, u2):
+    u1, u2 = sort_users(u1, u2)
+    chat_history = Message.objects.filter(username1=u1, username2=u2).order_by('date')
+    ans = []
+    for message in chat_history:
+        ans.append({
+            "message": message.message,
+            "onesay": message.onesay,
+            "date": message.date
+        })
+    return ans
 
-        if username2 < username1:
-            username1, username2 = username2, username1
-
-        # Fetch chat history from the database
-        chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
-
-        # Prepare the response data
-        history_data = []
-        for message in chat_history:
-            history_data.append({
-                'message': message.message,
-                'sender': 'You' if message.onesay else username2,
-                'date': message.date.strftime("%Y-%m-%d %H:%M:%S")
-            })
-
-        return JsonResponse({'chat_history': history_data})
-
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-@csrf_exempt
-def guest_mode(request):
-    # Enable guest mode by setting a session variable.
-    request.session['is_guest'] = True
-    request.session['username'] = 'Guest_User'  # Set a placeholder username for guest mode
-    return redirect('main')  # Redirect to the main page
-
-def chatgpt(personality, user_input, username, is_guest=False):
+def chatgpt(personality, user_input, username, is_guest):
     # Fetch the last 10 messages from the database
     u1, u2 = sort_users(username, personality)
     chat_history = get_message(u1, u2)[-10:]  # Get the last 10 messages
@@ -114,16 +99,6 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
-
-def save_message(u1, u2, onsay, message):
-    message = Message(
-        username1=u1,
-        username2=u2,
-        onesay=onsay,
-        message=message
-    )
-    message.save()
-
 def main(request):
     return render(request, 'main.html')
 
@@ -151,6 +126,42 @@ def chatbot(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+@csrf_exempt
+def guest_mode(request):
+    # Enable guest mode by setting a session variable.
+    request.session['is_guest'] = True
+    request.session['username'] = 'Guest_User'  # Set a placeholder username for guest mode
+    return redirect('main')  # Redirect to the main page
+
+
+@csrf_exempt
+def get_chat_history(request):
+    # Fetch chat history for a specific user and character.
+    if not request.user.is_authenticated and not request.session.get('is_guest', False):
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+
+    if request.method == 'POST':
+        username1 = request.user.username if request.user.is_authenticated else 'guest'
+        username2 = request.POST.get('character')
+
+        if username2 < username1:
+            username1, username2 = username2, username1
+
+        # Fetch chat history from the database
+        chat_history = Message.objects.filter(username1=username1, username2=username2).order_by('date')
+
+        # Prepare the response data
+        history_data = []
+        for message in chat_history:
+            history_data.append({
+                'message': message.message,
+                'sender': 'You' if message.onesay else username2,
+                'date': message.date.strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+        return JsonResponse({'chat_history': history_data})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 def get_history(request):
@@ -161,18 +172,6 @@ def get_history(request):
         return JsonResponse({'response': get_message(u1, u2)})
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-def get_message(u1, u2):
-    u1, u2 = sort_users(u1, u2)
-    chat_history = Message.objects.filter(username1=u1, username2=u2).order_by('date')
-    ans = []
-    for message in chat_history:
-        ans.append({
-            "message": message.message,
-            "onesay": message.onesay,
-            "date": message.date
-        })
-    return ans
 
 @csrf_exempt
 def chatbot_together(request):
@@ -188,12 +187,12 @@ def chatbot_together(request):
         message = 'Hi'
         for i in range(n):
             # Personality 1 responds
-            response1 = chatgpt(personality1, message, personality1)  # Pass personality1 as username
+            response1 = chatgpt(personality1, message, personality1, False)  # Pass personality1 as username
             save_message(u1, u2, True, response1)
             message = response1
 
             # Personality 2 responds
-            response2 = chatgpt(personality2, message, personality2)  # Pass personality2 as username
+            response2 = chatgpt(personality2, message, personality2, False)  # Pass personality2 as username
             save_message(u1, u2, False, response2)
             message = response2
 
