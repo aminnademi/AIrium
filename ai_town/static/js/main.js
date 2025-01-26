@@ -1,3 +1,32 @@
+// Add this code to your existing main.js file
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to toggle password visibility
+    function togglePassword(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleButton = passwordField.nextElementSibling;
+        const eyeIcon = toggleButton.querySelector('i');
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove('fa-eye'); // Remove "eye" icon
+            eyeIcon.classList.add('fa-eye-slash'); // Add "eye-slash" icon
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove('fa-eye-slash'); // Remove "eye-slash" icon
+            eyeIcon.classList.add('fa-eye'); // Add "eye" icon
+        }
+    }
+
+    // Attach event listeners to all "Show Password" buttons
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const fieldId = this.getAttribute('data-field-id');
+            togglePassword(fieldId);
+        });
+    });
+});
 document.addEventListener('DOMContentLoaded', function () {
     const guestButton = document.querySelector('button[onclick="as_Guest()"]');
 

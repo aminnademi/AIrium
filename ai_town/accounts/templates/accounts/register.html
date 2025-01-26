@@ -14,13 +14,19 @@
                 <label for="email">Email</label>
                 {{ form.email }}
             </div>
-            <div class="data">
-                <label for="password1">Password</label>
+            <div class="data password-field">
+                <label for="id_password1">Password</label>
                 {{ form.password1 }}
+                <button type="button" class="toggle-password" data-field-id="id_password1">
+                    <i class="fas fa-eye"></i> <!-- Eye icon for "Show" -->
+                </button>
             </div>
-            <div class="data">
-                <label for="password2">Confirm Password</label>
+            <div class="data password-field">
+                <label for="id_password2">Confirm Password</label>
                 {{ form.password2 }}
+                <button type="button" class="toggle-password" data-field-id="id_password2">
+                    <i class="fas fa-eye"></i> <!-- Eye icon for "Show" -->
+                </button>
             </div>
             <div class="form_submit">
                 <button type="submit" class="submit_btn">Register</button>

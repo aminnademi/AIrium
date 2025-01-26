@@ -79,3 +79,40 @@ form .data input:focus {
 .signup-link a:hover {
   text-decoration: underline;
 }
+
+/* Add this to your existing login.css file */
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 40px; /* Add padding to the right to make space for the eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px; /* Adjust this value to position the icon properly */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #000000; /* Icon color */
+  cursor: pointer;
+  font-size: 16px; /* Icon size */
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 50px;
+  width: 24px; /* Button size */
+  height: 24px; /* Button size */
+}
+
+.toggle-password:hover {
+  color: #2980b9; /* Icon hover color */
+}
+
+.toggle-password i {
+  pointer-events: none; /* Ensure clicks go to the button, not the icon */
+}
