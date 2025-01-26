@@ -1,5 +1,66 @@
-// Add this code to your existing main.js file
+document.addEventListener('DOMContentLoaded', function () {
+    // Function to toggle password visibility
+    function togglePassword(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleButton = passwordField.nextElementSibling;
+        const eyeIcon = toggleButton.querySelector('i');
 
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Attach event listeners to all "Show Password" buttons
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const fieldId = this.getAttribute('data-field-id');
+            togglePassword(fieldId);
+        });
+    });
+
+    // Function to validate password and confirm password fields
+    function validatePasswords() {
+        const password1 = document.getElementById('id_password1').value;
+        const password2 = document.getElementById('id_password2').value;
+        const errorMessage = document.getElementById('password-error');
+
+        if (password1 !== password2) {
+            if (!errorMessage) {
+                // Create and display the error message
+                const errorDiv = document.createElement('div');
+                errorDiv.id = 'password-error';
+                errorDiv.style.color = 'red';
+                errorDiv.style.marginTop = '10px';
+                errorDiv.textContent = 'Passwords do not match. Please try again.';
+                document.querySelector('.form_submit').before(errorDiv);
+            }
+            return false; // Prevent form submission
+        } else {
+            // Remove the error message if passwords match
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+            return true; // Allow form submission
+        }
+    }
+
+    // Attach event listener to the form submission
+    const registerForm = document.querySelector('form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function (event) {
+            if (!validatePasswords()) {
+                event.preventDefault(); // Prevent form submission if passwords don't match
+            }
+        });
+    }
+});
 document.addEventListener('DOMContentLoaded', function () {
     // Function to toggle password visibility
     function togglePassword(fieldId) {
