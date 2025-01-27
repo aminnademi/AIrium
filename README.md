@@ -30,4 +30,33 @@ The following activity diagram depicts the workflow of user interactions within 
 ---
 
 ## Installation
-Instructions for setting up the project on your local machine:
+Instructions for setting up the project on your local machine after cloning the repository:
+1. **Install Required Packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set Up Environment Variables:**
+   - Create a `.env` file in the root directory of the project and add your API key from a desired platform for LLMs:
+     ```
+     API_KEY=your_api_key_here
+     ```
+
+3. **Run Database Migrations:**
+   ```bash
+   python manage.py migrate
+   ```
+
+
+4. **Run the Development Server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+5. **Access the Application:**
+   Open your web browser and go to `http://127.0.0.1:8000/`.
+
+## Additional Notes
+- Ensure you have the necessary dependencies listed in `requirements.txt`.
+- Modify the `ALLOWED_HOSTS` in `settings.py` as needed for production.
+
