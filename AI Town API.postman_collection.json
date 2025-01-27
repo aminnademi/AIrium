@@ -1,0 +1,567 @@
+{
+	"info": {
+		"_postman_id": "3611aefd-1f0c-439d-849f-df70874037a0",
+		"name": "AI Town API",
+		"description": "The **AI Town API** enables users to interact with AI-based characters in a virtual town. It supports user authentication, chatbot interactions, chat history management, and dual-personality conversations. This API is designed to provide a seamless experience for users to engage with AI personalities such as the Mayor, Farmer, Economic Specialist, and Environmental Activist",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32007497"
+	},
+	"item": [
+		{
+			"name": "Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains success message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.message).to.eql(\"User registered successfully\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "password1",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "password2",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/register/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"register",
+						""
+					]
+				},
+				"description": "Registers a new user in the system. Users must provide a unique username, a valid email, and a password. Passwords must match for successful registration."
+			},
+			"response": [
+				{
+					"name": "Register User",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password1",
+									"value": "testpassword",
+									"type": "text"
+								},
+								{
+									"key": "password2",
+									"value": "testpassword",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains authentication token\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.token).to.be.a(\"string\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/login/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"login",
+						""
+					]
+				},
+				"description": "Authenticates a user and returns an authentication token. Users must provide their username and password to log in."
+			},
+			"response": [
+				{
+					"name": "Login User",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "testuser",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "testpassword",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Logout User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains logout message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.message).to.eql(\"Logged out successfully\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/logout/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"logout",
+						""
+					]
+				},
+				"description": "Logs out the currently authenticated user. This endpoint invalidates the user's session or token."
+			},
+			"response": []
+		},
+		{
+			"name": "Chatbot",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains chatbot message\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.response).to.be.a(\"string\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "input",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "personality",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/chatbot/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"chatbot",
+						""
+					]
+				},
+				"description": "Allows users to interact with an AI character. Users can send a message and specify the AI personality they want to interact with (e.g., Mayor, Farmer)."
+			},
+			"response": [
+				{
+					"name": "Chatbot",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "input",
+									"value": "\"Hello, how are you?\"",
+									"type": "text"
+								},
+								{
+									"key": "personality",
+									"value": "\"mayor\"",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get Chat History",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains chat history\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.chat_history).to.be.an(\"array\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "character",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/get-chat-history/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"get-chat-history",
+						""
+					]
+				},
+				"description": "Retrieves the chat history between the user and a specific AI character. Users can view past conversations with a selected personality."
+			},
+			"response": [
+				{
+					"name": "Get Chat History",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "character",
+									"value": "\"mayor\"",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Dual Chat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response indicates conversation saved\", function () {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.expect(response.response).to.eql(\"Conversation saved successfully\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "personality1",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "personality2",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "n",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/chatbot-together/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"chatbot-together",
+						""
+					]
+				},
+				"description": "Facilitates a conversation between two AI characters. Users can select two personalities and specify the number of interactions (`n`) to observe how the AIs communicate with each other."
+			},
+			"response": [
+				{
+					"name": "Dual Chat",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "personality1",
+									"value": "\"mayor\"",
+									"type": "text"
+								},
+								{
+									"key": "personality2",
+									"value": "\"farmer\"",
+									"type": "text"
+								},
+								{
+									"key": "n",
+									"value": "5",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Guest Mode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response redirects to main page\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"AI Town\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/accounts/guest-mode/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"accounts",
+						"guest-mode",
+						""
+					]
+				},
+				"description": "Enables guest mode, allowing users to interact with the system without creating an account. Guest users can access limited functionality."
+			},
+			"response": []
+		}
+	]
+}
