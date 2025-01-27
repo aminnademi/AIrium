@@ -37,7 +37,7 @@ Instructions for setting up the project on your local machine after cloning the 
    ```
 
 2. **Set Up Environment Variables:**
-   - Create a `.env` file in the root directory of the project and add your API key from a desired platform fro LLMs:
+   - Create a `.env` file in the root directory of the project and add your API key from a desired platform for LLMs:
      ```
      API_KEY=your_api_key_here
      ```
